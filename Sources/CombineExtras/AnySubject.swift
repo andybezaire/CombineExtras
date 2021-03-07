@@ -64,7 +64,7 @@ public extension Subject {
 ///
 /// You can use OpenCombine’s `eraseToAnySubject()` operator to wrap a subject with
 /// `AnySubject`.
-public class AnySubject<Output, Failure: Error> {
+public final class AnySubject<Output, Failure: Error> {
     @usableFromInline
     internal let box: SubjectBoxBase<Output, Failure>
 
