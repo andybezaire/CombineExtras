@@ -83,13 +83,6 @@ public final class AnySubject<Output, Failure: Error> {
         }
     }
 
-    public var value: Output? {
-        if let subjectBox = box as? SubjectBox<CurrentValueSubject<Output, Failure>> {
-            return subjectBox.base.value
-        }
-        return nil
-    }
-
     public var description: String {
         return "AnySubject"
     }
