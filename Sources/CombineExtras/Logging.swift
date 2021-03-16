@@ -44,8 +44,8 @@ public extension Publisher {
         to logger: Logger?,
         prefix: String,
         _ logCommand: @escaping ((Logger, Output) -> Void)
-    ) -> some Publisher {
-        guard let logger = logger else { return self.handleEvents() }
+    ) -> AnyPublisher<Output, Failure>  {
+        guard let logger = logger else { return self.handleEvents().eraseToAnyPublisher() }
 
         let receiveSubscription: ((Subscription) -> Void) = { _ in
             logger.log("\(prefix, privacy: .public) started")
@@ -77,5 +77,6 @@ public extension Publisher {
             receiveCompletion: receiveCompletion,
             receiveCancel: receiveCancel
         )
+        .eraseToAnyPublisher()
     }
 }

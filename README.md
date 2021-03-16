@@ -22,7 +22,7 @@ Including:
 Add the following dependency to your **Package.swift** file:
 
 ```swift
-.package(url: "https://github.com/andybezaire/CombineExtras.git, from: "1.0")
+.package(name: "CombineExtras", url: "https://github.com/andybezaire/CombineExtras.git", from: "1.2.0")
 ```
 ## License
 
