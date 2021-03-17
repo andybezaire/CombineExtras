@@ -9,7 +9,7 @@ import Combine
 import os.log
 
 public extension Publisher {
-    /// Use this to log the output of a publisher to a custom log message.
+    /// Use this to log the output  and life cycle of a publisher to a custom log message.
     ///
     /// Lifecycle methods are logged appropriately as:
     /// - `receiveSubscription: <prefix> started`
@@ -44,7 +44,7 @@ public extension Publisher {
         to logger: Logger?,
         prefix: String,
         _ logCommand: @escaping ((Logger, Output) -> Void)
-    ) -> AnyPublisher<Output, Failure>  {
+    ) -> AnyPublisher<Output, Failure> {
         guard let logger = logger else { return self.handleEvents().eraseToAnyPublisher() }
 
         let receiveSubscription: ((Subscription) -> Void) = { _ in
@@ -78,5 +78,36 @@ public extension Publisher {
             receiveCancel: receiveCancel
         )
         .eraseToAnyPublisher()
+    }
+
+    /// Use this to log only the output of a publisher to a custom log message.
+    ///
+    /// Usage:
+    ///
+    ///     let logger = Logger(subsystem: "com.example.subsystem", category: "main")
+    ///
+    ///     let cancel = [1, 2, 3].publisher
+    ///         .log(to: logger, prefix: "Counter") { logger, output in
+    ///             logger.log("Counter got \(output, privacy: .private) new coin(s)")
+    ///         }
+    ///         .sink { _ in } receiveValue: { _ in }
+    ///
+    ///      // sample output:
+    ///      // 2021-03-16 20:41:10.980252+0200 subsystem[47288:1810254] [main] Counter got 1 new coin(s)
+    ///      // 2021-03-16 20:41:10.980361+0200 subsystem[47288:1810254] [main] Counter got 2 new coin(s)
+    ///      // 2021-03-16 20:41:10.980451+0200 subsystem[47288:1810254] [main] Counter got 3 new coin(s)
+    /// - Parameters:
+    ///   - logger: the optional logger to log to
+    ///   - logCommand: a closure which can be used to log the output appropriately
+    /// - Returns: a publisher similar to the upstream publisher
+    func logOutput(
+        to logger: Logger?,
+        _ logCommand: @escaping ((Logger, Output) -> Void)
+    ) -> AnyPublisher<Output, Failure> {
+        let receiveOutput = logger
+            .map { logger in { output in logCommand(logger, output) } }
+        return self
+            .handleEvents(receiveOutput: receiveOutput)
+            .eraseToAnyPublisher()
     }
 }
