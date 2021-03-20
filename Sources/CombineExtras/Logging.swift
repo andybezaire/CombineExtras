@@ -43,7 +43,7 @@ public extension Publisher {
     func log(
         to logger: Logger?,
         prefix: String,
-        _ logCommand: @escaping ((Logger, Output) -> Void)
+        _ logCommand: ((Logger, Output) -> Void)? = nil
     ) -> AnyPublisher<Output, Failure> {
         guard let logger = logger else { return self.handleEvents().eraseToAnyPublisher() }
 
@@ -64,7 +64,7 @@ public extension Publisher {
         }
 
         let receiveOutput: ((Output) -> Void) = { output in
-            logCommand(logger, output)
+            _ = logCommand?(logger, output)
         }
 
         let receiveCancel: (() -> Void) = {
