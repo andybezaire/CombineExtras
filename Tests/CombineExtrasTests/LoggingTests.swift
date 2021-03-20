@@ -59,8 +59,31 @@ final class LoggingTests: XCTestCase {
         wait(for: [publisherCompleted], timeout: 1)
     }
 
+    /// testExampleEventsIsLogged
+    ///
+    /// this output needs to be visually inspected to match:
+    ///
+    ///      // sample output:
+    ///      // 2021-03-16 20:41:10.980102+0200 subsystem[47288:1810254] [main] Counter started
+    ///      // 2021-03-16 20:41:10.980252+0200 subsystem[47288:1810254] [main] Counter output
+    ///      // 2021-03-16 20:41:10.980361+0200 subsystem[47288:1810254] [main] Counter output
+    ///      // 2021-03-16 20:41:10.980451+0200 subsystem[47288:1810254] [main] Counter output
+    ///      // 2021-03-16 20:41:10.980578+0200 subsystem[47288:1810254] [main] Counter finished
+    func testExampleEventsIsLogged() {
+        let logger = Logger(subsystem: "com.example.subsystem", category: "main")
+
+        let publisherCompleted = XCTestExpectation(description: "The publisher has completed")
+
+        cancellable = [1, 2, 3].publisher
+            .logEvents(to: logger, prefix: "Counter")
+            .sink { _ in publisherCompleted.fulfill() } receiveValue: { _ in }
+
+        wait(for: [publisherCompleted], timeout: 1)
+    }
+
     static var allTests = [
         ("testExampleIsLogged", testExampleIsLogged),
         ("testExampleOutputIsLogged", testExampleOutputIsLogged),
+        ("testExampleEventsIsLogged", testExampleEventsIsLogged),
     ]
 }

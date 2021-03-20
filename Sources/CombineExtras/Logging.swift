@@ -9,9 +9,9 @@ import Combine
 import os.log
 
 public extension Publisher {
-    /// Use this to log the output  and life cycle of a publisher to a custom log message.
+    /// Use this to log the output and events of a publisher to a lgger with a  custom log message.
     ///
-    /// Lifecycle methods are logged appropriately as:
+    /// Events are logged respectively as:
     /// - `receiveSubscription: <prefix> started`
     /// - `receiveCompletion.failure: <prefix> error: <error>`
     /// - `receiveCompletion.finished: <prefix> finished`
@@ -87,7 +87,7 @@ public extension Publisher {
     ///     let logger = Logger(subsystem: "com.example.subsystem", category: "main")
     ///
     ///     let cancel = [1, 2, 3].publisher
-    ///         .log(to: logger, prefix: "Counter") { logger, output in
+    ///         .logOutput(to: logger) { logger, output in
     ///             logger.log("Counter got \(output, privacy: .private) new coin(s)")
     ///         }
     ///         .sink { _ in } receiveValue: { _ in }
@@ -102,12 +102,80 @@ public extension Publisher {
     /// - Returns: a publisher similar to the upstream publisher
     func logOutput(
         to logger: Logger?,
-        _ logCommand: @escaping ((Logger, Output) -> Void)
+        _ logCommand: ((Logger, Output) -> Void)? = nil
     ) -> AnyPublisher<Output, Failure> {
         let receiveOutput = logger
-            .map { logger in { output in logCommand(logger, output) } }
+            .map { logger in { output in _ = logCommand?(logger, output) } }
         return self
             .handleEvents(receiveOutput: receiveOutput)
             .eraseToAnyPublisher()
+    }
+
+    /// Use this to log the events of a publisher to a logger.
+    ///
+    /// Events are logged appropriately as:
+    /// - `receiveSubscription: <prefix> started`
+    /// - `receiveOutput: <prefix> output`
+    /// - `receiveCompletion.failure: <prefix> error: <error>`
+    /// - `receiveCompletion.finished: <prefix> finished`
+    /// - `receiveCancel: <prefix> cancelled`
+    ///
+    /// use the logger in the completion to log an appropriate message and optionally select the privacy of the output
+    ///
+    /// Usage:
+    ///
+    ///     let logger = Logger(subsystem: "com.example.subsystem", category: "main")
+    ///
+    ///     let cancel = [1, 2, 3].publisher
+    ///         .logEvents(to: logger, prefix: "Counter")
+    ///         .sink { _ in } receiveValue: { _ in }
+    ///
+    ///      // sample output:
+    ///      // 2021-03-16 20:41:10.980102+0200 subsystem[47288:1810254] [main] Counter started
+    ///      // 2021-03-16 20:41:10.980252+0200 subsystem[47288:1810254] [main] Counter output
+    ///      // 2021-03-16 20:41:10.980361+0200 subsystem[47288:1810254] [main] Counter output
+    ///      // 2021-03-16 20:41:10.980451+0200 subsystem[47288:1810254] [main] Counter output
+    ///      // 2021-03-16 20:41:10.980578+0200 subsystem[47288:1810254] [main] Counter finished
+    /// - Parameters:
+    ///   - logger: the optional logger to log to
+    ///   - prefix: the prefixed text before any of the lifecycle methods
+    /// - Returns: a publisher similar to the upstream publisher
+    func logEvents(
+        to logger: Logger?,
+        prefix: String
+    ) -> AnyPublisher<Output, Failure> {
+        guard let logger = logger else { return self.handleEvents().eraseToAnyPublisher() }
+
+        let receiveSubscription: ((Subscription) -> Void) = { _ in
+            logger.log("\(prefix, privacy: .public) started")
+        }
+
+        let receiveCompletion: ((Subscribers.Completion<Self.Failure>) -> Void) = { completion in
+            switch completion {
+            case .failure(let error):
+                logger.log(
+                    level: .error,
+                    "\(prefix, privacy: .public) error: \(error.localizedDescription, privacy: .public)"
+                )
+            case .finished:
+                logger.log("\(prefix, privacy: .public) finished")
+            }
+        }
+
+        let receiveOutput: ((Output) -> Void) = { _ in
+            logger.log("\(prefix, privacy: .public) output")
+        }
+
+        let receiveCancel: (() -> Void) = {
+            logger.log("\(prefix, privacy: .public) cancelled")
+        }
+
+        return self.handleEvents(
+            receiveSubscription: receiveSubscription,
+            receiveOutput: receiveOutput,
+            receiveCompletion: receiveCompletion,
+            receiveCancel: receiveCancel
+        )
+        .eraseToAnyPublisher()
     }
 }
