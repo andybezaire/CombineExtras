@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 ### Security
 
+## [1.4.0] - 2021-04-05
+### Added
+- logging data task
+
 ## [1.3.3] - 2021-04-03
 ### Added
 - changelog
@@ -33,7 +37,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.0.0] - 2021-03-06
 
 
-[Unreleased]: https://github.com/andybezaire/CombineExtras/compare/v1.3.3...HEAD
+[Unreleased]: https://github.com/andybezaire/CombineExtras/compare/v1.4.0...HEAD
+[1.4.0]: https://github.com/andybezaire/CombineExtras/compare/1.3.3...1.4.0
 [1.3.3]: https://github.com/andybezaire/CombineExtras/compare/1.3.2...1.3.3
 [1.3.2]: https://github.com/andybezaire/CombineExtras/compare/1.3.1...1.3.2
 [1.3.1]: https://github.com/andybezaire/CombineExtras/compare/1.3.0...1.3.1

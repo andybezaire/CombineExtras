@@ -8,9 +8,11 @@ let package = Package(
     products: [
         .library(name: "CombineExtras", targets: ["CombineExtras"])
     ],
-    dependencies: [],
+    dependencies: [
+        .package(name: "Mocker", url: "https://github.com/andybezaire/Mocker.git", from: "2.3.0")
+    ],
     targets: [
         .target(name: "CombineExtras", dependencies: []),
-        .testTarget(name: "CombineExtrasTests", dependencies: ["CombineExtras"])
+        .testTarget(name: "CombineExtrasTests", dependencies: ["CombineExtras", "Mocker"])
     ]
 )
