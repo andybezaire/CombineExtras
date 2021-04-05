@@ -1,5 +1,5 @@
 //
-//  LoggedDataTaskTests.swift
+//  LoggingDataTaskTests.swift
 //  
 //
 //  Created by Andy on 5.4.2021.
@@ -11,7 +11,7 @@ import Mocker
 import os.log
 import XCTest
 
-final class LoggedDataTaskTests: XCTestCase {
+final class LoggingDataTaskTests: XCTestCase {
     var cancellable: AnyCancellable?
     
     struct Sample: Codable {
@@ -39,7 +39,7 @@ final class LoggedDataTaskTests: XCTestCase {
         Mock(url: url, dataType: .json, statusCode: 200, data: [.get: Data()])
             .register()
 
-        cancellable = URLSession.shared.loggedDataTask(for: request, using: logger, level: .info, prefix: "Test")
+        cancellable = URLSession.shared.loggingDataTask(for: request, using: logger, level: .info, prefix: "Test")
             .sink { _ in publisherCompleted.fulfill() } receiveValue: { _ in }
 
         wait(for: [publisherCompleted], timeout: 1)
@@ -70,7 +70,7 @@ final class LoggedDataTaskTests: XCTestCase {
         Mock(url: url, dataType: .json, statusCode: 200, data: [.post: try! JSONEncoder().encode(sample1)])
             .register()
 
-        cancellable = URLSession.shared.loggedDataTask(for: request, using: logger, level: .info, prefix: "Test")
+        cancellable = URLSession.shared.loggingDataTask(for: request, using: logger, level: .info, prefix: "Test")
             .sink { _ in publisherCompleted.fulfill() } receiveValue: { _ in }
 
         wait(for: [publisherCompleted], timeout: 1)
@@ -101,7 +101,7 @@ final class LoggedDataTaskTests: XCTestCase {
         Mock(url: url, dataType: .json, statusCode: 200, data: [.post: try! JSONEncoder().encode(sample1)])
             .register()
 
-        cancellable = URLSession.shared.loggedDataTask(for: request, using: logger)
+        cancellable = URLSession.shared.loggingDataTask(for: request, using: logger)
             .sink { _ in publisherCompleted.fulfill() } receiveValue: { _ in }
 
         wait(for: [publisherCompleted], timeout: 1)
