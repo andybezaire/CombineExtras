@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 ### Changed
+- logging headders only logs the first 20 characters of the value, this avoids long bearer token prints
 ### Deprecated
 ### Removed
 ### Fixed

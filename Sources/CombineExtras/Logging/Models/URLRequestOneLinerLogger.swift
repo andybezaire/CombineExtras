@@ -19,7 +19,7 @@ extension URLRequest.RequestOneLinerLogger: CustomStringConvertible {
     var description: String {
         let method = request.httpMethod.map { "\($0) " } ?? ""
         let url = (request.url?.absoluteString).map { "\($0) " } ?? ""
-        let headers = request.allHTTPHeaderFields.map { "\($0) " } ?? ""
+        let headers = request.allHTTPHeaderFields.map { "\($0.truncated(limit: 20)) " } ?? ""
         let body = request.httpBody.map { "\(String(data: $0, encoding: .utf8) ?? "") " } ?? ""
 
         return "\(method)\(url)\(headers)\(body)"
